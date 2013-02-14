@@ -14,14 +14,25 @@ try:
 except ImportError:
     from PySide import QtGui
     
+import nodeTypesTable
+import nuke
+    
 class MainWidget(QtGui.QWidget):
     def __init__(self, parent = None):    
         QtGui.QWidget.__init__(self, parent)
         
         self.__btnReload = None
         self.__vSplitter = None
+        self.__nodeTypesTableView = None
     
         self.__initNukeAttributeSpreadsheetWidget()
+        self.__initCallbacks()
+        
+    def updateNodeTypesTableView(self):
+        self.__nodeTypesTableView.updateModel()
+        
+    def __initCallbacks(self):
+        nuke.addOnCreate (self.updateNodeTypesTableView)
         
     def __initNukeAttributeSpreadsheetWidget(self):
         self.setLayout(QtGui.QVBoxLayout())                                 # Create the main layout
@@ -32,8 +43,12 @@ class MainWidget(QtGui.QWidget):
         self.__vSplitter = QtGui.QSplitter(self)                            # Create the main splitter
         self.layout().addWidget(self.__vSplitter)                           # Add splitter to main-layout
         
+        self.__nodeTypesTableView = nodeTypesTable.NodeTypesTableView(self.__vSplitter)
+        
+        self.__vSplitter.addWidget(self.__nodeTypesTableView)
         self.__vSplitter.addWidget(QtGui.QPushButton(self.__vSplitter))
-        self.__vSplitter.addWidget(QtGui.QPushButton(self.__vSplitter))
+        
+        self.__btnReload.clicked.connect(self.updateNodeTypesTableView())
         
     
 if __name__ == '__main__':

@@ -58,13 +58,17 @@ class NodeTypesTableView(QtGui.QTableView):
     def __init__(self, parent = None):
         QtGui.QTableView.__init__(self, parent)
         
-        self.setModel(NodeTypesModel())
         self.verticalHeader().hide()
         self.setShowGrid(False)
+        self.updateModel()
+        
+    def updateModel(self):
+        self.setModel(NodeTypesModel())
         
     def setModel(self, model):
         QtGui.QTableView.setModel(self, model)
         self.resizeColumnsToContents()
         self.resizeRowsToContents()
+        self.horizontalHeader().setStretchLastSection(True)
         
         
