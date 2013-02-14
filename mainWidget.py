@@ -8,6 +8,8 @@ __license__ = 'GPL'
 __version__ = '1.0'
 __maintainer__ = __author__
 __email__ = 'manuel@manuelmacha.de'
+__website__ = 'http://www.manuelmacha.de'
+__git__ = 'https://github.com/manuelmacha/NukeAttributeSpreadsheet'
 
 try:
     from PyQt4 import QtGui
@@ -48,7 +50,7 @@ class MainWidget(QtGui.QWidget):
         self.__vSplitter.addWidget(self.__nodeTypesTableView)
         self.__vSplitter.addWidget(QtGui.QPushButton(self.__vSplitter))
         
-        self.__btnReload.clicked.connect(self.updateNodeTypesTableView())
+        self.__btnReload.clicked.connect(self.updateNodeTypesTableView)
         
     
 if __name__ == '__main__':

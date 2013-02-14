@@ -1,4 +1,18 @@
 
-NukeAttributeSpreadsheet
+Author: Manuel Macha'
+Copyright: Manuel Macha, 2013
+License: GPL
+Version: 1.0
+Email: manuel@manuelmacha.de
+Website: http://www.manuelmacha.de
+Git: https://github.com/manuelmacha/NukeAttributeSpreadsheet
 
-Manuel Macha 2013
+
+
+Installation:
+
+Place the folder called 'NukeAttributeSpreadsheet' somewhere in Nuke's Python-path
+
+import NukeAttributeSpreadsheet
+NukeAttributeSpreadsheet.run()
+

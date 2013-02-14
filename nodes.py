@@ -8,6 +8,8 @@ __license__ = 'GPL'
 __version__ = '1.0'
 __maintainer__ = __author__
 __email__ = 'manuel@manuelmacha.de'
+__website__ = 'http://www.manuelmacha.de'
+__git__ = 'https://github.com/manuelmacha/NukeAttributeSpreadsheet'
 
 import nuke
 
@@ -22,7 +24,7 @@ def getNumberOfNodesByType():
     for nodeType in getAllNodeTypes():
         types[nodeType] = 0
     for node in getAllNodes():
-        types[node.Class()] = types[node.Class()] + 1
+        types[node.Class()] += 1
     return types
 
     
