@@ -26,11 +26,17 @@ class NodeTypesModel(QtCore.QAbstractTableModel):
         self.__numberOfNodesByType = nodes.getNumberOfNodesByType()
         self.__headerNames = ('NodeType', '#')
         
-    def __nodeTypeForIndex(self, index):
+    def nodeTypeForIndex(self, index):
         return self.__nodeTypes[index.row() - 1]
     
+    def indexForNodeType(self, nodeType):
+        try:
+            return self.__nodeTypes.index(nodeType)
+        except ValueError:
+            return None
+    
     def __numberOfNodesByTypeForIndex(self, index):
-        return self.__numberOfNodesByType[self.__nodeTypeForIndex(index)]
+        return self.__numberOfNodesByType[self.nodeTypeForIndex(index)]
         
     def __columnHeaderForIndex(self, index):
         return self.__headerNames[index.column()]
@@ -49,7 +55,7 @@ class NodeTypesModel(QtCore.QAbstractTableModel):
         columnHeader = self.__columnHeaderForIndex(index)
         if role == QtCore.Qt.DisplayRole:
             if columnHeader == 'NodeType':
-                return self.__nodeTypeForIndex(index)
+                return self.nodeTypeForIndex(index)
             elif columnHeader == '#':
                 return self.__numberOfNodesByTypeForIndex(index)
         elif role == QtCore.Qt.TextAlignmentRole:
@@ -64,8 +70,21 @@ class NodeTypesTableView(QtGui.QTableView):
         self.setShowGrid(False)
         self.updateModel()
         
+    def getSelectedNodeTypes(self):
+        return map(lambda modelIndex: self.model().nodeTypeForIndex(modelIndex), self.selectedIndexes())
+        
+    def selectNodeTypes(self, nodeTypes):
+        self.clearSelection()
+        for nodeType in nodeTypes:
+            index = self.model().indexForNodeType(nodeType)
+            if not index is None:
+                modelIndex = self.model().index(index + 1, 0)
+                self.selectionModel().select(modelIndex, QtGui.QItemSelectionModel.Select)
+        
     def updateModel(self):
+        selectedNodeTypes = self.getSelectedNodeTypes()
         self.setModel(NodeTypesModel())
+        self.selectNodeTypes(selectedNodeTypes)
         
     def setModel(self, model):
         QtGui.QTableView.setModel(self, model)

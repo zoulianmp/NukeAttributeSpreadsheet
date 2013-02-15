@@ -34,7 +34,8 @@ class MainWidget(QtGui.QWidget):
         self.__nodeTypesTableView.updateModel()
         
     def __initCallbacks(self):
-        nuke.addOnCreate (self.updateNodeTypesTableView)
+        nuke.addOnCreate(self.updateNodeTypesTableView)
+        nuke.addOnDestroy(self.updateNodeTypesTableView) # Doesn't seem to update
         
     def __initNukeAttributeSpreadsheetWidget(self):
         self.setLayout(QtGui.QVBoxLayout())                                 # Create the main layout
