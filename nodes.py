@@ -27,4 +27,5 @@ def getNumberOfNodesByType():
         types[node.Class()] += 1
     return types
 
+
     

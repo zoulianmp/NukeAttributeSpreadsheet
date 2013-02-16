@@ -16,7 +16,7 @@ try:
 except ImportError:
     from PySide import QtGui, QtCore
     
-import nodes
+import nodes, icons
 
 class NodeTypesModel(QtCore.QAbstractTableModel):
     def __init__(self, parent = None):
@@ -61,6 +61,9 @@ class NodeTypesModel(QtCore.QAbstractTableModel):
         elif role == QtCore.Qt.TextAlignmentRole:
             if columnHeader == '#':
                 return QtCore.Qt.AlignCenter
+        elif role == QtCore.Qt.DecorationRole:
+            if columnHeader == 'NodeType':
+                return icons.NodeIconLib().getIconForNodeType(self.nodeTypeForIndex(index))
 
 class NodeTypesTableView(QtGui.QTableView):
     def __init__(self, parent = None):
