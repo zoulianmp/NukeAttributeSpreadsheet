@@ -77,6 +77,10 @@ class NodeTypesTableView(QtGui.QTableView):
         self.setShowGrid(False)
         self.updateModel()
         
+    def getCombinedColumnWidth(self):
+        print 'widths', self.columnWidth(0) , self.columnWidth(1)
+        return self.columnWidth(0) + self.columnWidth(1)
+        
     def getSelectedNodeTypes(self):
         return map(lambda modelIndex: self.model().nodeTypeForIndex(modelIndex), self.selectedIndexes())
         
@@ -89,14 +93,13 @@ class NodeTypesTableView(QtGui.QTableView):
                 self.selectionModel().select(modelIndex, QtGui.QItemSelectionModel.Select)
         
     def updateModel(self):
-        selectedNodeTypes = self.getSelectedNodeTypes()
         self.setModel(NodeTypesModel())
-        self.selectNodeTypes(selectedNodeTypes)
+        self.selectNodeTypes(self.getSelectedNodeTypes())
         
     def setModel(self, model):
         QtGui.QTableView.setModel(self, model)
         self.resizeColumnsToContents()
         self.resizeRowsToContents()
-        self.horizontalHeader().setStretchLastSection(True)
+        #self.horizontalHeader().setStretchLastSection(True)
         
         

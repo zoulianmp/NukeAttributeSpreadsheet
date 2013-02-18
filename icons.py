@@ -40,7 +40,6 @@ class NodeIconLib(object): # Using singleton pattern
         return iconPaths
             
     def __getIconForNodeType(self, nodeType):
-        if 'erge' in nodeType: print 'c', nodeType
         for path in self.__iconPaths:
             fullIconPath = os.path.join(path, nodeType)
             if os.path.isfile(fullIconPath):
