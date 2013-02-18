@@ -16,7 +16,7 @@ try:
 except ImportError:
     from PySide import QtGui, QtCore
     
-import nodes, icons
+import nodes, icons, constants
 
 class NodeTypesModel(QtCore.QAbstractTableModel):
     def __init__(self, parent = None):
@@ -73,12 +73,13 @@ class NodeTypesTableView(QtGui.QTableView):
     def __init__(self, parent = None):
         QtGui.QTableView.__init__(self, parent)
         
+        self.setIconSize(QtCore.QSize(*constants.ICONSIZE))
+        self.setAlternatingRowColors(True)  # TODO: change alternating color to something lest drastic than black
         self.verticalHeader().hide()
         self.setShowGrid(False)
         self.updateModel()
         
     def getCombinedColumnWidth(self):
-        print 'widths', self.columnWidth(0) , self.columnWidth(1)
         return self.columnWidth(0) + self.columnWidth(1)
         
     def getSelectedNodeTypes(self):
@@ -89,17 +90,18 @@ class NodeTypesTableView(QtGui.QTableView):
         for nodeType in nodeTypes:
             index = self.model().indexForNodeType(nodeType)
             if not index is None:
-                modelIndex = self.model().index(index + 1, 0)
+                modelIndex = self.model().index(index, 0)
                 self.selectionModel().select(modelIndex, QtGui.QItemSelectionModel.Select)
         
     def updateModel(self):
+        selectedNodeTypes = self.getSelectedNodeTypes()
         self.setModel(NodeTypesModel())
-        self.selectNodeTypes(self.getSelectedNodeTypes())
+        self.selectNodeTypes(selectedNodeTypes)
         
     def setModel(self, model):
         QtGui.QTableView.setModel(self, model)
         self.resizeColumnsToContents()
         self.resizeRowsToContents()
-        #self.horizontalHeader().setStretchLastSection(True)
+        self.horizontalHeader().setStretchLastSection(True)
         
         

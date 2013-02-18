@@ -17,7 +17,8 @@ def getAllNodes():
     return nuke.allNodes()
 
 def getAllNodeTypes():
-    return tuple(set(map(lambda node: node.Class(), getAllNodes())))
+    nodeTypes = tuple(set(map(lambda node: node.Class(), getAllNodes())))
+    return sorted(nodeTypes)
 
 def getNumberOfNodesByType():
     types = {}

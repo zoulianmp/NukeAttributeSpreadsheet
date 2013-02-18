@@ -31,32 +31,30 @@ class MainWidget(QtGui.QWidget):
         self.__initNukeAttributeSpreadsheetWidget()                         # Init the main UI-elements
         self.__connectSignalsToSlots()                                      # Connect all signals and slots
         self.__initCallbacks()                                              # Init the callbacks that act upon node creation/deletion
-        
         self.__fitVSplitterToLeftColumn()
         
     def closeEvent(self, event):
+        ''' The purpuse of this overloaded method in order to call the method that is responsible for removing and callbacks in case the UI is being closed ''' 
         self.__removeCallbacks()
         return QtGui.QWidget.closeEvent(self, event)
 
     def __fitVSplitterToLeftColumn(self):
-        print self, '__fitVSplitterToLeftColumn'
         splitterWidth = self.__vSplitter.width()
-        leftStretchFactor = int((100.0 / splitterWidth) * self.__nodeTypesTableView.getCombinedColumnWidth())
-        rightStretchFactor =  int((100.0 / splitterWidth) * (splitterWidth - self.__nodeTypesTableView.getCombinedColumnWidth())) 
-        leftWidth = self.__nodeTypesTableView.getCombinedColumnWidth() + 5
-        rightWidth = splitterWidth - leftWidth - 5
-        self.__vSplitter.setStretchFactor(0, leftStretchFactor)
-        self.__vSplitter.setStretchFactor(1, rightStretchFactor)
+        leftWidth = self.__nodeTypesTableView.getCombinedColumnWidth() + self.__nodeTypesTableView.contentsMargins().left() + self.__nodeTypesTableView.contentsMargins().right()
+        rightWidth = splitterWidth - leftWidth - self.__nodeTypesTableView.contentsMargins().left() - self.__nodeTypesTableView.contentsMargins().right()
+        self.__vSplitter.setStretchFactor(0, 0)
+        self.__vSplitter.setStretchFactor(1, 100)
         self.__vSplitter.setSizes([leftWidth, rightWidth])
         
     def updateNodeTypesTableView(self):
-        print self, 'updateNodeTypesTableView'
+        #print self, 'updateNodeTypesTableView'
         self.__nodeTypesTableView.updateModel()                             # Call 'updateModel()' in the nodeType tableView
-        self.__fitVSplitterToLeftColumn()
+        self.__fitVSplitterToLeftColumn()                                   # Adjust the width of the left column
         
     def __removeCallbacks(self):
-        nuke.removeOnCreate(self.updateNodeTypesTableView)
-        nuke.removeOnDestroy(self.updateNodeTypesTableView)
+        ''' Call this method when the UI is being closed in order to remove any callbacks to update the UI which will no longer be required'''
+        nuke.removeOnCreate(self.updateNodeTypesTableView)                  # Remove callback responsible for updating the UI when nodes are created               
+        nuke.removeOnDestroy(self.updateNodeTypesTableView)                 # Remove callback responsible for updating the UI when nodes are destroyed
         
     def __initCallbacks(self):
         nuke.addOnCreate(self.updateNodeTypesTableView)                     # If a new node is created, the nodeType tableView will be updated
@@ -83,10 +81,6 @@ class MainWidget(QtGui.QWidget):
         self.__hSplitter.addWidget(QtGui.QTreeView(self.__hSplitter))
         
         self.__vSplitter.addWidget(QtGui.QTableView(self.__vSplitter))
-        
-        
-        
-        
         
         
     

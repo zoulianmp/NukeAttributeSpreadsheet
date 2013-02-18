@@ -2,7 +2,9 @@
 
 '''
 Classes and functions related to Nuke's icons
-The way to derive the icon-path is kind of a hack and it's only been tested on OSX with a default installation of Nuke 7.0v4
+The way to derive the icon-path is kind of a hack.
+It's been tested on OSX and Linux with default installations of Nuke 6.3 and 7.0v4
+TODO: Add ability to set paths to icons through environment-variable
 '''
 
 __author__ = 'Manuel Macha'
@@ -16,11 +18,16 @@ __git__ = 'https://github.com/manuelmacha/NukeAttributeSpreadsheet'
 
 import os
 import nuke
+import constants
 
 try:
-    from PyQt4 import QtGui
+    from PyQt4 import QtGui, QtCore
 except ImportError:
-    from PySide import QtGui
+    from PySide import QtGui, QtCore
+    
+class IconBlank(QtGui.QIcon):
+    def __init__(self):
+        QtGui.QIcon.__init__(self, QtGui.QPixmap(QtCore.QSize(*constants.ICONSIZE)))
 
 class NodeIconLib(object): # Using singleton pattern
     def __init__(self):
@@ -56,6 +63,6 @@ class NodeIconLib(object): # Using singleton pattern
                             self.__icons[subSubItem.name()] = self.__getIconForNodeType(subItem.icon())    
 
     def getIconForNodeType(self, nodeType):
-        return self.__icons.get(nodeType, QtGui.QIcon())
+        return self.__icons.get(nodeType, IconBlank())
 
     
