@@ -25,34 +25,36 @@ except ImportError:
 class NodeIconLib(object): # Using singleton pattern
     def __init__(self):
         globals()[self.__class__.__name__] = self
-        self.__iconPath = self.__getNukeDefaultIconPath()
+        self.__iconPaths = self.__getNukeDefaultIconPaths()
         self.__icons = {}
         self.__getIcons()        
 
     def __call__(self):
         return self
 
-    def __getNukeDefaultIconPath(self):
-        versionString = nuke.NUKE_VERSION_STRING
+    def __getNukeDefaultIconPaths(self):
+        iconPaths = []
         for path in nuke.pluginPath():
-            if versionString in path and 'icons' in path:
-                return path
+            if nuke.NUKE_VERSION_STRING in path and 'icons' in path:
+                iconPaths.append(path)
+        return iconPaths
             
     def __getIconForNodeType(self, nodeType):
-        fullIconPath = os.path.join(self.__iconPath, nodeType)
-        if os.path.isfile(fullIconPath):
-            return QtGui.QIcon(fullIconPath)            
+        if 'erge' in nodeType: print 'c', nodeType
+        for path in self.__iconPaths:
+            fullIconPath = os.path.join(path, nodeType)
+            if os.path.isfile(fullIconPath):
+                return QtGui.QIcon(fullIconPath)            
     
     def __getIcons(self):
         for menu in nuke.toolbar('Nodes').items():
             if isinstance(menu, nuke.Menu):
                 for subItem in menu.items():
-                    if isinstance(subItem, nuke.MenuItem):
+                    if isinstance(subItem, nuke.MenuItem) or isinstance(subItem.Menu):
                         self.__icons[subItem.name()] = self.__getIconForNodeType(subItem.icon())
                     elif isinstance(subItem, nuke.Menu):
                         for subSubItem in subItem.items():
-                            if isinstance(subSubItem, nuke.MenuItem):
-                                self.__icons[subSubItem.name()] = self.__getIconForNodeType(subItem.icon())    
+                            self.__icons[subSubItem.name()] = self.__getIconForNodeType(subItem.icon())    
 
     def getIconForNodeType(self, nodeType):
         return self.__icons.get(nodeType, QtGui.QIcon())

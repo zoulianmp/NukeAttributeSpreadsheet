@@ -55,6 +55,8 @@ class NodeTypesModel(QtCore.QAbstractTableModel):
         columnHeader = self.__columnHeaderForIndex(index)
         if role == QtCore.Qt.DisplayRole:
             if columnHeader == 'NodeType':
+                if self.nodeTypeForIndex(index)[-1].isdigit():  # For cases where for example a 'Merge' is actually internally representing a 'Merge2' node 
+                    return self.nodeTypeForIndex(index)[0:-1]                
                 return self.nodeTypeForIndex(index)
             elif columnHeader == '#':
                 return self.__numberOfNodesByTypeForIndex(index)
@@ -63,6 +65,8 @@ class NodeTypesModel(QtCore.QAbstractTableModel):
                 return QtCore.Qt.AlignCenter
         elif role == QtCore.Qt.DecorationRole:
             if columnHeader == 'NodeType':
+                if self.nodeTypeForIndex(index)[-1].isdigit():  # For cases where for example a 'Merge' is actually internally representing a 'Merge2' node 
+                    return icons.NodeIconLib().getIconForNodeType(self.nodeTypeForIndex(index)[0:-1])
                 return icons.NodeIconLib().getIconForNodeType(self.nodeTypeForIndex(index))
 
 class NodeTypesTableView(QtGui.QTableView):
