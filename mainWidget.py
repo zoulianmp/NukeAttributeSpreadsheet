@@ -34,21 +34,17 @@ class MainWidget(QtGui.QWidget):
         self.__fitVSplitterToLeftColumn()
         
     def closeEvent(self, event):
-        ''' The purpuse of this overloaded method in order to call the method that is responsible for removing and callbacks in case the UI is being closed ''' 
+        ''' The purpose of this overloaded method is to call the method that is responsible for removing any callbacks previsouly created in case the UI is being closed ''' 
         self.__removeCallbacks()
         return QtGui.QWidget.closeEvent(self, event)
 
     def __fitVSplitterToLeftColumn(self):
-        splitterWidth = self.__vSplitter.width()
-        leftWidth = self.__nodeTypesTableView.getCombinedColumnWidth()
-        rightWidth = splitterWidth - leftWidth
-        print splitterWidth, leftWidth, rightWidth
-        self.__vSplitter.setStretchFactor(0, 0)
-        self.__vSplitter.setStretchFactor(1, 100)
-        self.__vSplitter.setSizes([leftWidth, rightWidth])
+        splitterWidth = self.__vSplitter.width()                            # Get the entire width of the main-splitter
+        leftWidth = self.__nodeTypesTableView.getCombinedColumnWidth()      # Calculate left splitter width using the width of the nodeTypesTableView including it's margins
+        rightWidth = splitterWidth - leftWidth                              # Calculate the resulting right splitter-width
+        self.__vSplitter.setSizes([leftWidth, rightWidth])                  # Set the size of the individual columns
         
     def updateNodeTypesTableView(self):
-        #print self, 'updateNodeTypesTableView'
         self.__nodeTypesTableView.updateModel()                             # Call 'updateModel()' in the nodeType tableView
         self.__fitVSplitterToLeftColumn()                                   # Adjust the width of the left column
         
@@ -82,6 +78,9 @@ class MainWidget(QtGui.QWidget):
         self.__hSplitter.addWidget(QtGui.QTreeView(self.__hSplitter))
         
         self.__vSplitter.addWidget(QtGui.QTableView(self.__vSplitter))
+        
+        self.__vSplitter.setStretchFactor(0, 0)                             # Set the stretch factor of the left splitter
+        self.__vSplitter.setStretchFactor(1, 100)                           # Set the stretch factor of the right splitter
         
         
     

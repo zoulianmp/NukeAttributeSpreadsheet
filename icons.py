@@ -34,7 +34,9 @@ class NodeIconLib(object): # Using singleton pattern
         globals()[self.__class__.__name__] = self
         self.__iconPaths = self.__getNukeDefaultIconPaths()
         self.__icons = {}
-        self.__getIcons()        
+        self.__getIcons()
+        self.__getUnresolvedIcons()
+            
 
     def __call__(self):
         return self
@@ -60,7 +62,10 @@ class NodeIconLib(object): # Using singleton pattern
                         self.__icons[subItem.name()] = self.__getIconForNodeType(subItem.icon())
                     elif isinstance(subItem, nuke.Menu):
                         for subSubItem in subItem.items():
-                            self.__icons[subSubItem.name()] = self.__getIconForNodeType(subItem.icon())    
+                            self.__icons[subSubItem.name()] = self.__getIconForNodeType(subItem.icon())
+                            
+    def __getUnresolvedIcons(self):
+        self.__icons['Expression'] = self.__getIconForNodeType('Expression.png')   
 
     def getIconForNodeType(self, nodeType):
         return self.__icons.get(nodeType, IconBlank())

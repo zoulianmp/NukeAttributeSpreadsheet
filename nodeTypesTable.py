@@ -19,7 +19,7 @@ except ImportError:
 import nodes, icons, constants
 
 class Margins():
-    ''' Margins object for facilities running Qt < 4.6 '''
+    ''' Margins object used for backwards-compability when running Qt < 4.6 '''
     def __init__(self, *args):
         self.__left = args[0] if len(args) == 4 else constants.MARGIN
         self.__top = args[1] if len(args) == 4 else constants.MARGIN
@@ -31,7 +31,8 @@ class Margins():
     def bottom(self): return self.__bottom          
             
 
-class NodeTypesModel(QtCore.QAbstractTableModel):
+class NodeTypesTableModel(QtCore.QAbstractTableModel):
+    ''' Implementation of model for use with NodeTypeTableView '''
     def __init__(self, parent = None):
         QtCore.QAbstractTableModel.__init__(self, parent)
         
@@ -40,7 +41,7 @@ class NodeTypesModel(QtCore.QAbstractTableModel):
         self.__headerNames = ('NodeType', '#')
         
     def nodeTypeForIndex(self, index):
-        return self.__nodeTypes[index.row() - 1]
+        return self.__nodeTypes[index.row()]
     
     def indexForNodeType(self, nodeType):
         try:
@@ -119,13 +120,23 @@ class NodeTypesTableView(QtGui.QTableView):
         
     def updateModel(self):
         selectedNodeTypes = self.getSelectedNodeTypes()
-        self.setModel(NodeTypesModel())
+        self.setModel(NodeTypesTableModel())
         self.selectNodeTypes(selectedNodeTypes)
         
     def setModel(self, model):
         QtGui.QTableView.setModel(self, model)
         self.resizeColumnsToContents()
         self.resizeRowsToContents()
-        #self.horizontalHeader().setStretchLastSection(True)
+        
+class NodeTypesWidget(QtGui.QGroupBox):
+    def __init__(self, parent = None):
+        QtGui.QGroupBox.__init__(self, parent)
+        self.setLayout(QtGui.QVBoxLayout())
+
+        
+        
+
+
+
         
         

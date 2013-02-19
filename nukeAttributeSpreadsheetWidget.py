@@ -12,9 +12,9 @@ __website__ = 'http://www.manuelmacha.de'
 __git__ = 'https://github.com/manuelmacha/NukeAttributeSpreadsheet'
 
 import mainWidget
+import nuke
     
 class NukeAttributeSpreadsheetWidget(mainWidget.MainWidget):
     def __init__(self, parent = None):    
         mainWidget.MainWidget.__init__(self, parent)
-
-
+    
