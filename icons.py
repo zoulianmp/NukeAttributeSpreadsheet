@@ -56,7 +56,7 @@ class NodeIconLib(object): # Using singleton pattern
         for menu in nuke.toolbar('Nodes').items():
             if isinstance(menu, nuke.Menu):
                 for subItem in menu.items():
-                    if isinstance(subItem, nuke.MenuItem) or isinstance(subItem.Menu):
+                    if isinstance(subItem, nuke.MenuItem) or isinstance(subItem, nuke.Menu):
                         self.__icons[subItem.name()] = self.__getIconForNodeType(subItem.icon())
                     elif isinstance(subItem, nuke.Menu):
                         for subSubItem in subItem.items():

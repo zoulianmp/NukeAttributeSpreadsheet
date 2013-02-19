@@ -18,6 +18,19 @@ except ImportError:
     
 import nodes, icons, constants
 
+class Margins():
+    ''' Margins object for facilities running Qt < 4.6 '''
+    def __init__(self, *args):
+        self.__left = args[0] if len(args) == 4 else constants.MARGIN
+        self.__top = args[1] if len(args) == 4 else constants.MARGIN
+        self.__right = args[2] if len(args) == 4 else constants.MARGIN
+        self.__bottom = args[3] if len(args) == 4 else constants.MARGIN
+    def left(self): return self.__left
+    def top(self): return self.__top
+    def right(self): return self.__right
+    def bottom(self): return self.__bottom          
+            
+
 class NodeTypesModel(QtCore.QAbstractTableModel):
     def __init__(self, parent = None):
         QtCore.QAbstractTableModel.__init__(self, parent)
@@ -73,14 +86,25 @@ class NodeTypesTableView(QtGui.QTableView):
     def __init__(self, parent = None):
         QtGui.QTableView.__init__(self, parent)
         
+        palette = self.palette()
+        palette.setColor(QtGui.QPalette.Base, QtGui.QColor(*constants.ROWBASECOLOR))
+        palette.setColor(QtGui.QPalette.AlternateBase, QtGui.QColor(*constants.ALTERNATEROWBASECOLOR))
         self.setIconSize(QtCore.QSize(*constants.ICONSIZE))
-        self.setAlternatingRowColors(True)  # TODO: change alternating color to something lest drastic than black
+        self.setAlternatingRowColors(True)
+        self.setPalette(palette)
         self.verticalHeader().hide()
         self.setShowGrid(False)
         self.updateModel()
         
-    def getCombinedColumnWidth(self):
-        return self.columnWidth(0) + self.columnWidth(1)
+    def contentsMargins(self):
+        try:
+            return QtGui.QTableView.contentsMargins(self)
+        except:
+            return Margins()
+        
+    def getCombinedColumnWidth(self, includingMargins = True):
+        margins = self.contentsMargins().left() + self.contentsMargins().right() if includingMargins == True else 0
+        return self.columnWidth(0) + self.columnWidth(1) + margins
         
     def getSelectedNodeTypes(self):
         return map(lambda modelIndex: self.model().nodeTypeForIndex(modelIndex), self.selectedIndexes())
@@ -102,6 +126,6 @@ class NodeTypesTableView(QtGui.QTableView):
         QtGui.QTableView.setModel(self, model)
         self.resizeColumnsToContents()
         self.resizeRowsToContents()
-        self.horizontalHeader().setStretchLastSection(True)
+        #self.horizontalHeader().setStretchLastSection(True)
         
         

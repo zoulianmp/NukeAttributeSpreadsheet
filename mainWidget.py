@@ -40,8 +40,9 @@ class MainWidget(QtGui.QWidget):
 
     def __fitVSplitterToLeftColumn(self):
         splitterWidth = self.__vSplitter.width()
-        leftWidth = self.__nodeTypesTableView.getCombinedColumnWidth() + self.__nodeTypesTableView.contentsMargins().left() + self.__nodeTypesTableView.contentsMargins().right()
-        rightWidth = splitterWidth - leftWidth - self.__nodeTypesTableView.contentsMargins().left() - self.__nodeTypesTableView.contentsMargins().right()
+        leftWidth = self.__nodeTypesTableView.getCombinedColumnWidth()
+        rightWidth = splitterWidth - leftWidth
+        print splitterWidth, leftWidth, rightWidth
         self.__vSplitter.setStretchFactor(0, 0)
         self.__vSplitter.setStretchFactor(1, 100)
         self.__vSplitter.setSizes([leftWidth, rightWidth])
