@@ -28,5 +28,14 @@ def getNumberOfNodesByType():
         types[node.Class()] += 1
     return types
 
+def getAllNodesByNodeType(nodeType):
+    return filter(lambda x: x != None, map(lambda node: node if node.Class() == nodeType else None, getAllNodes()))
+
+def getNodeDict():
+    nodeDict = {}
+    for nodeType in getAllNodeTypes():
+        nodeDict[nodeType] = getAllNodesByNodeType(nodeType)
+    return nodeDict
+
 
     

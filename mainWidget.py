@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 ''' The main widget'''
+from nodeTree import NodeTreeView
 
 __author__ = 'Manuel Macha'
 __copyright__ = 'Copyright 2013, Manuel Macha'
@@ -16,7 +17,7 @@ try:
 except ImportError:
     from PySide import QtGui, QtCore
     
-import nodeTypesTable, nodes
+import nodeTypesTable, nodeTree, nodes
 import nuke
     
 class MainWidget(QtGui.QWidget):
@@ -27,6 +28,7 @@ class MainWidget(QtGui.QWidget):
         self.__vSplitter = None
         self.__hSplitter = None
         self.__nodeTypesTableView = None
+        self.__nodeTreeView = None
     
         self.__initNukeAttributeSpreadsheetWidget()                         # Init the main UI-elements
         self.__connectSignalsToSlots()                                      # Connect all signals and slots
@@ -75,7 +77,10 @@ class MainWidget(QtGui.QWidget):
         
         self.__nodeTypesTableView = nodeTypesTable.NodeTypesTableView(self.__hSplitter) # Create a tableView which will be responsible for displaying the types of nodes in teh current nukescript
         self.__hSplitter.addWidget(self.__nodeTypesTableView)               # Add the tableView to the layout of the horizontal splitter
-        self.__hSplitter.addWidget(QtGui.QTreeView(self.__hSplitter))
+        
+        self.__nodeTreeView = nodeTree.NodeTreeView(self.__hSplitter)
+        self.__nodeTreeView.setModel(nodeTree.NodeTreeModel())
+        self.__hSplitter.addWidget(self.__nodeTreeView)
         
         self.__vSplitter.addWidget(QtGui.QTableView(self.__vSplitter))
         
