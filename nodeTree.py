@@ -20,7 +20,7 @@ try:
 except ImportError:
     from PySide import QtGui, QtCore
     
-import nodes
+import nodes, icons, constants
 
 class TreeItem(object):
     def __init__(self, data, parent = None):
@@ -59,19 +59,16 @@ class NodeTreeModel(QtCore.QAbstractItemModel):
     def __init__(self, parent = None):
         QtCore.QAbstractItemModel.__init__(self, parent)
 
-        self.__rootData = ['A', 'B']
+        self.__rootData = ['Nodes', 'Select']
         self.__rootItem = TreeItem(self.__rootData)
         self.setupModelData()
         
     def setupModelData(self):
         nodeDict = nodes.getNodeDict()
-        print nodeDict
         for nodeType in nodes.getAllNodeTypes():
-            print nodeType
             nodeTypeItem = TreeItem([nodeType], parent = self.__rootItem)
             self.__rootItem.appendChild(nodeTypeItem)
             for node in nodeDict[nodeType]:
-                print '\t%s' % node['name'].value()
                 nodeItem = TreeItem([node['name'].value()], parent = nodeTypeItem)
                 nodeTypeItem.appendChild(nodeItem)
                 
@@ -124,20 +121,43 @@ class NodeTreeModel(QtCore.QAbstractItemModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if not role == QtCore.Qt.DisplayRole:
-            return None
         item = index.internalPointer()
-        return item.data(index.column())
+        if role == QtCore.Qt.DisplayRole:
+            return item.data(index.column())
+        elif role == QtCore.Qt.DecorationRole and index.column() == 0:
+            if item.parent() == self.__rootItem:
+                return icons.NodeIconLib().getIconForNodeType(item.data(0))
+        elif role == QtCore.Qt.FontRole and item.parent() == self.__rootItem:
+            font = QtGui.QFont()
+            font.setBold(True)
+            return font
 
     def flags(self, index):
         if not index.isValid():
             return 0;
-        
         return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
+    
+    def headerData(self, section, orientation, role):
+        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+            return self.__rootItem.data(section)
+        
         
 class NodeTreeView(QtGui.QTreeView):
     def __init__(self, parent = None):
         QtGui.QTreeView.__init__(self, parent)
+        
+        palette = self.palette()
+        palette.setColor(QtGui.QPalette.Base, QtGui.QColor(*constants.ROWBASECOLOR))
+        palette.setColor(QtGui.QPalette.AlternateBase, QtGui.QColor(*constants.ALTERNATEROWBASECOLOR))
+        self.setIconSize(QtCore.QSize(*constants.ICONSIZE))
+        self.setAlternatingRowColors(True)
+        self.setPalette(palette)
+        #self.setSelectionMode() # TODO: enable multi-select
+        
+    def setModel(self, model):
+        QtGui.QTreeView.setModel(self, model)
+        for columnIndex in range(self.model().columnCount(self.model().index(0, 0, QtCore.QModelIndex()))): # TODO: fix resizing
+            self.resizeColumnToContents(columnIndex)       
         
 
     

@@ -12,6 +12,11 @@ __website__ = 'http://www.manuelmacha.de'
 __git__ = 'https://github.com/manuelmacha/NukeAttributeSpreadsheet'
 
 import nuke
+import re
+
+def __humanKey(key):
+    parts = re.split('(\d*\.\d+|\d+)', key)
+    return tuple((e.swapcase() if i % 2 == 0 else float(e)) for i, e in enumerate(parts))
 
 def getAllNodes():
     return nuke.allNodes()
@@ -29,7 +34,9 @@ def getNumberOfNodesByType():
     return types
 
 def getAllNodesByNodeType(nodeType):
-    return filter(lambda x: x != None, map(lambda node: node if node.Class() == nodeType else None, getAllNodes()))
+    nodes = filter(lambda x: x != None, map(lambda node: node if node.Class() == nodeType else None, getAllNodes()))
+    return sorted(nodes, key=lambda x: x['name'].value(), reverse = False)
+    #return sorted(nodes, key = [lambda x: x['name'].value()].sort(key = __humanKey), reverse = False)
 
 def getNodeDict():
     nodeDict = {}
