@@ -19,7 +19,7 @@ except ImportError:
 import nodes, icons, constants
 
 class Margins():
-    ''' Margins object used for backwards-compability when running Qt < 4.6 '''
+    ''' Margins object used for backwards-compatibility when running Qt-versions < 4.6 '''
     def __init__(self, *args):
         self.__left = args[0] if len(args) == 4 else constants.MARGIN
         self.__top = args[1] if len(args) == 4 else constants.MARGIN

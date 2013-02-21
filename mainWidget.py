@@ -87,12 +87,4 @@ class MainWidget(QtGui.QWidget):
         self.__vSplitter.setStretchFactor(0, 0)                             # Set the stretch factor of the left splitter
         self.__vSplitter.setStretchFactor(1, 100)                           # Set the stretch factor of the right splitter
         
-        
-    
-if __name__ == '__main__':
-    import sys
-    app = QtGui.QApplication(sys.argv)
-    nass = MainWidget()
-    nass.show()
-    nass.raise_()
-    sys.exit(app.exec_())        
+              
