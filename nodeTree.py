@@ -22,6 +22,26 @@ except ImportError:
     
 import nodes, icons, constants
 
+class NodeTreeFilter(object): # Using singleton pattern
+    def __init__(self):
+        globals()[self.__class__.__name__] = self
+        
+        self.__filter = None
+        
+    def __call__(self):
+        return self
+    
+    def setFilter(self, filter_):
+        self.__filter = filter_
+    
+    def getFilter(self):
+        return self.__filter
+    
+    def isStringInFilter(self, string):
+        if self.getFilter() is None:
+            return True
+        return self.getFilter().lower() in string.lower()
+
 class TreeItem(object):
     def __init__(self, data, parent = None):
         self.__childItems = []
@@ -59,18 +79,30 @@ class NodeTreeModel(QtCore.QAbstractItemModel):
     def __init__(self, parent = None):
         QtCore.QAbstractItemModel.__init__(self, parent)
 
-        self.__rootData = ['Nodes', 'Select']
+        self.__nodeDict = nodes.getNodeDict()
+        self.__rootData = ['Nodes', '#']
         self.__rootItem = TreeItem(self.__rootData)
+        self.__filter = NodeTreeFilter()
+        
         self.setupModelData()
         
+    def __nodeTypeMatchesFilter(self, nodeType):
+        if self.__filter.getFilter() is None:
+            return True
+        if not self.__nodeDict.has_key(nodeType):
+            return False
+        return True in map(lambda x: self.__filter.isStringInFilter( x['name'].value()), nodes.getAllNodesByNodeType(nodeType))
+        
     def setupModelData(self):
-        nodeDict = nodes.getNodeDict()
+        numberOfNodesByType = nodes.getNumberOfNodesByType()
         for nodeType in nodes.getAllNodeTypes():
-            nodeTypeItem = TreeItem([nodeType], parent = self.__rootItem)
-            self.__rootItem.appendChild(nodeTypeItem)
-            for node in nodeDict[nodeType]:
-                nodeItem = TreeItem([node['name'].value()], parent = nodeTypeItem)
-                nodeTypeItem.appendChild(nodeItem)
+            if self.__nodeTypeMatchesFilter(nodeType):  
+                nodeTypeItem = TreeItem([nodeType, numberOfNodesByType[nodeType]], parent = self.__rootItem)
+                self.__rootItem.appendChild(nodeTypeItem)
+                for node in self.__nodeDict[nodeType]:
+                    if self.__filter.isStringInFilter(node['name'].value()):
+                        nodeItem = TreeItem([node['name'].value()], parent = nodeTypeItem)
+                        nodeTypeItem.appendChild(nodeItem)
                 
     def index(self, row, column, parent):
         if not self.hasIndex(row, column, parent):
@@ -153,6 +185,9 @@ class NodeTreeView(QtGui.QTreeView):
         self.setAlternatingRowColors(True)
         self.setPalette(palette)
         #self.setSelectionMode() # TODO: enable multi-select
+        
+    def updateModel(self):
+        self.setModel(NodeTreeModel())
         
     def setModel(self, model):
         QtGui.QTreeView.setModel(self, model)

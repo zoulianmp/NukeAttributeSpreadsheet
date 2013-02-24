@@ -25,6 +25,13 @@ try:
 except ImportError:
     from PySide import QtGui, QtCore
     
+    
+class Icon(QtGui.QIcon):
+    def __init__(self, name = None):
+        QtGui.QIcon.__init__(self)
+        fullIconPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), name)
+        self.addFile(fullIconPath)
+    
 class IconBlank(QtGui.QIcon):
     def __init__(self):
         QtGui.QIcon.__init__(self, QtGui.QPixmap(QtCore.QSize(*constants.ICONSIZE)))
