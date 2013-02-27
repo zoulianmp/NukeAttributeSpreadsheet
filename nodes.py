@@ -15,6 +15,7 @@ import nuke
 import re
 
 def __humanKey(key):
+    # TODO: make this work so that numbered node names are returned in a nicer ways    
     parts = re.split('(\d*\.\d+|\d+)', key)
     return tuple((e.swapcase() if i % 2 == 0 else float(e)) for i, e in enumerate(parts))
 
@@ -36,13 +37,21 @@ def getNumberOfNodesByType():
 def getAllNodesByNodeType(nodeType):
     nodes = filter(lambda x: x != None, map(lambda node: node if node.Class() == nodeType else None, getAllNodes()))
     return sorted(nodes, key=lambda x: x['name'].value(), reverse = False)
-    #return sorted(nodes, key = [lambda x: x['name'].value()].sort(key = __humanKey), reverse = False)
 
 def getNodeDict():
     nodeDict = {}
     for nodeType in getAllNodeTypes():
         nodeDict[nodeType] = getAllNodesByNodeType(nodeType)
     return nodeDict
+
+def getNodeFromNodeName(name):
+    return nuke.toNode(name)
+
+def getNodesFromNodeNames(names):
+    nodes = []
+    for name in names:
+        nodes.append(getNodeFromNodeName(name))
+    return nodes
 
 
     
