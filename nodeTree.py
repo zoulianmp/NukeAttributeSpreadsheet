@@ -228,21 +228,15 @@ class NodeTreeView(QtGui.QTreeView):
         
         
     def selectionChanged(self, selected, deselected):
-        #self.__expandedItems = self.getExpandedItems()
         self.__selectedNodes = self.getSelectedNodes()
-        print 'expanded', self.__expandedItems
-        print 'selected', self.__selectedNodes
+        # print 'selected', self.__selectedNodes
         return QtGui.QTreeView.selectionChanged(self, selected, deselected)
     
     def __restoreExpanded(self):
         expandedNodeTypes = tuple(set(map(lambda x: x.data(0), self.__expandedItems)))
-        print 'expandedNodeTypes', expandedNodeTypes
         for i in range(len(self.model().getRoot().childItems())):
             modelIndex = self.model().createIndex(i, 0, self.model().getRoot().child(i))
-            #print modelIndex, modelIndex.internalPointer(), modelIndex.internalPointer().data(0)
-            #print modelIndex.internalPointer().data(0)
             if modelIndex.internalPointer().data(0) in expandedNodeTypes:
-                print 'expand', modelIndex.internalPointer().data(0)
                 self.setExpanded(modelIndex, True) 
                 
     def __restoreSelected(self):
