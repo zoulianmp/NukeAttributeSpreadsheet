@@ -47,6 +47,16 @@ class TreeItem(object):
         self.__childItems = []
         self.__itemData = data
         self.__parentItem = parent
+        self.__representsRoot = False
+        self.__representsNodeType = False
+        self.__representsNode = False
+        
+    def representsRoot(self): return self.__representsRoot
+    def representsNodeType(self): return self.__representsNodeType
+    def representsNode(self): return self.__representsNode
+    def setRepresentsRoot(self, value): self.__representsRoot = value
+    def setRepresentsNodeType(self, value): self.__representsNodeType = value
+    def setRepresentsNode(self, value): self.__representsNode    = value 
         
     def childItems(self):
         return self.__childItems
@@ -80,8 +90,9 @@ class NodeTreeModel(QtCore.QAbstractItemModel):
         QtCore.QAbstractItemModel.__init__(self, parent)
 
         self.__nodeDict = nodes.getNodeDict()
-        self.__rootData = ['Nodes', '#']
+        self.__rootData = ['Nodes', '#', 'x']
         self.__rootItem = TreeItem(self.__rootData)
+        self.__rootItem.setRepresentsRoot(True)
         self.__filter = NodeTreeFilter()
         
         self.setupModelData()
@@ -97,11 +108,13 @@ class NodeTreeModel(QtCore.QAbstractItemModel):
         numberOfNodesByType = nodes.getNumberOfNodesByType()
         for nodeType in nodes.getAllNodeTypes():
             if self.__nodeTypeMatchesFilter(nodeType):  
-                nodeTypeItem = TreeItem([nodeType, numberOfNodesByType[nodeType]], parent = self.__rootItem)
+                nodeTypeItem = TreeItem([nodeType, numberOfNodesByType[nodeType], 'x'], parent = self.__rootItem)
+                nodeTypeItem.setRepresentsNodeType(True)
                 self.__rootItem.appendChild(nodeTypeItem)
                 for node in self.__nodeDict[nodeType]:
                     if self.__filter.isStringInFilter(node['name'].value()):
-                        nodeItem = TreeItem([node['name'].value()], parent = nodeTypeItem)
+                        nodeItem = TreeItem([node['name'].value(), '', 'x'], parent = nodeTypeItem)
+                        nodeItem.setRepresentsNode(True)
                         nodeTypeItem.appendChild(nodeItem)
                 
     def index(self, row, column, parent):
@@ -170,21 +183,38 @@ class NodeTreeModel(QtCore.QAbstractItemModel):
         return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
     
     def headerData(self, section, orientation, role):
-        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
-            return self.__rootItem.data(section)
+        if orientation == QtCore.Qt.Horizontal:
+            if role == QtCore.Qt.DisplayRole:
+                return self.__rootItem.data(section)
+            elif role == QtCore.Qt.DecorationRole:
+                return icons.Icon(name = 'cross.png')
         
         
 class NodeTreeView(QtGui.QTreeView):
     def __init__(self, parent = None):
         QtGui.QTreeView.__init__(self, parent)
         
-        palette = self.palette()
-        palette.setColor(QtGui.QPalette.Base, QtGui.QColor(*constants.ROWBASECOLOR))
-        palette.setColor(QtGui.QPalette.AlternateBase, QtGui.QColor(*constants.ALTERNATEROWBASECOLOR))
-        self.setIconSize(QtCore.QSize(*constants.ICONSIZE))
-        self.setAlternatingRowColors(True)
-        self.setPalette(palette)
-        #self.setSelectionMode() # TODO: enable multi-select
+        
+
+        self.__initNodeTreeView()
+        
+    def currentChanged(self, current, previous):
+        # TODO: Allow multiselection of nodes by selectiing their parent node type item
+        return QtGui.QTreeView.currentChanged(self, current, previous)
+    
+    def getSelectedNodeNames(self):
+        selectedNodes = []
+        for index_ in self.selectedIndexes():
+            if index_.internalPointer().representsNode():
+                selectedNodes.append(index_.internalPointer().data(0))
+        return sorted(list(set(selectedNodes)))      
+        
+        
+    def selectionChanged(self, selected, deselected):
+        print self.getSelectedNodeNames()
+            
+        return QtGui.QTreeView.selectionChanged(self, selected, deselected)
+    
         
     def updateModel(self):
         self.setModel(NodeTreeModel())
@@ -192,7 +222,19 @@ class NodeTreeView(QtGui.QTreeView):
     def setModel(self, model):
         QtGui.QTreeView.setModel(self, model)
         for columnIndex in range(self.model().columnCount(self.model().index(0, 0, QtCore.QModelIndex()))): # TODO: fix resizing
-            self.resizeColumnToContents(columnIndex)       
+            self.resizeColumnToContents(columnIndex)   
+            
+    def __initNodeTreeView(self):  
+        palette = self.palette()
+        palette.setColor(QtGui.QPalette.Base, QtGui.QColor(*constants.ROWBASECOLOR))
+        palette.setColor(QtGui.QPalette.AlternateBase, QtGui.QColor(*constants.ALTERNATEROWBASECOLOR))
+        self.setIconSize(QtCore.QSize(*constants.ICONSIZE))
+        self.setAlternatingRowColors(True)
+        self.setPalette(palette)
+        self.setSelectionMode(QtGui.QAbstractItemView.MultiSelection) 
+        
+        
+                
         
 
     

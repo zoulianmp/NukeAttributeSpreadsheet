@@ -76,16 +76,17 @@ class MainWidget(QtGui.QWidget):
         self.layout().addWidget(self.__vSplitter)                           # Add splitter to main-layout
         
         self.__vSplitter.setLayout(QtGui.QVBoxLayout())                     # Add a vertical layout to the main splitter
-        self.__hSplitter = QtGui.QSplitter(QtCore.Qt.Vertical)              # Create a horizontal splitter 
-        self.__vSplitter.layout().addWidget(self.__hSplitter)               # Add the horizontal splitter to the left layout of the main splitter
         
-        self.__nodeSearchBox = SearchBox()
-        self.__nodeTreeView = nodeTree.NodeTreeView(self.__hSplitter)       # Create a tableView which will be responsible for displaying the types of nodes in teh current nukescript
+        self.__nodeSearchBox = SearchBox(self.__vSplitter)
+        self.__nodeTreeView = nodeTree.NodeTreeView(self.__vSplitter)       # Create a tableView which will be responsible for displaying the types of nodes in teh current nukescript
         self.__nodeTreeView.setModel(nodeTree.NodeTreeModel())
-        self.__hSplitter.addWidget(self.__nodeSearchBox) 
-        self.__hSplitter.addWidget(self.__nodeTreeView)
         
-                            # Add the tableView to the layout of the horizontal splitter
+        w = QtGui.QWidget()
+        w.setLayout(QtGui.QVBoxLayout())
+        self.__vSplitter.layout().addWidget(w) 
+        
+        w.layout().addWidget(self.__nodeSearchBox) 
+        w.layout().addWidget(self.__nodeTreeView)
         
         self.__vSplitter.addWidget(QtGui.QTableView(self.__vSplitter))
         

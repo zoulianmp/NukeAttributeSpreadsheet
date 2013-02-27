@@ -106,9 +106,8 @@ class SearchBox(QtGui.QLineEdit):
         self.clearButton.clicked.connect(self.clear)        
         
     def initSearchBox(self):
-        self.setBaseSize(constants.BUTTONWIDTH, constants.BUTTONHEIGHT)
-        self.setMinimumSize(self.baseSize())
-        self.setMaximumSize(self.baseSize())         
+        self.setMinimumHeight(constants.BUTTONHEIGHT)
+        self.setMaximumHeight(self.minimumHeight())         
         self.setFocusPolicy(QtCore.Qt.ClickFocus)
         
         self.initClearButton()
