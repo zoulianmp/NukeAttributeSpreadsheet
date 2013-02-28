@@ -205,10 +205,6 @@ class NodeTreeView(QtGui.QTreeView):
         self.__expandedItems = []
 
         self.__initNodeTreeView()
-        
-    def currentChanged(self, current, previous):
-        # TODO: Allow multiselection of nodes by selectiing their parent node type item
-        return QtGui.QTreeView.currentChanged(self, current, previous)
     
     def setExpandedItems(self, modelIndex):
         expandedItems = []
@@ -233,8 +229,19 @@ class NodeTreeView(QtGui.QTreeView):
     
     def getSelectedNodes(self):
         return nodes.getNodesFromNodeNames(self.getSelectedNodeNames())   
+    
+    def __getModelIndexesFromItemSelectionIfIndexRepresentsNodeType(self, itemSelection):
+        modelIndexesRepresentingNodeTypes = []
+        for index_ in itemSelection.indexes():
+            if index_.column() == 0 and index_.internalPointer().representsNodeType():
+                modelIndexesRepresentingNodeTypes.append(index_)
+        return modelIndexesRepresentingNodeTypes
         
     def selectionChanged(self, selected, deselected):
+        #print 'selectedNodeTypes', self.__getModelIndexesFromItemSelectionIfIndexRepresentsNodeType(selected)
+        #print 'deselectedNodeTypes', self.__getModelIndexesFromItemSelectionIfIndexRepresentsNodeType(deselected)
+                    
+                
         self.__selectedNodes = self.getSelectedNodes()
         self.__selectedNodeTypes = self.getSelectedNodeTypes()
         return QtGui.QTreeView.selectionChanged(self, selected, deselected)
@@ -246,18 +253,32 @@ class NodeTreeView(QtGui.QTreeView):
             if modelIndex.internalPointer().data(0) in expandedNodeTypes:
                 self.setExpanded(modelIndex, True) 
                 
-    def __restoreSelected(self):
-        selectedNodeTypes = self.__selectedNodeTypes
-        self.clearSelection()
+    def __restoreSelectedNodeTypes(self, selectedNodeTypesBeforeModelUpdate):
         for i in range(len(self.model().getRoot().childItems())):
             modelIndex = self.model().createIndex(i, 0, self.model().getRoot().child(i))
-            if str(modelIndex.internalPointer().data(0)) in selectedNodeTypes:
+            if str(modelIndex.internalPointer().data(0)) in selectedNodeTypesBeforeModelUpdate:
                 self.selectionModel().select(modelIndex, QtGui.QItemSelectionModel.Select)
+                
+    def __restoreSelectedNodes(self, selectedNodeNamesBeforeModelUpdate):
+        k = 0
+        for nodeTypeItem in self.model().getRoot().childItems():
+            for i in range(len(nodeTypeItem.childItems())):
+                nodeName = nodeTypeItem.childItems()[i].data(0)
+                if nodeName in selectedNodeNamesBeforeModelUpdate:
+                    parentModelIndex = self.model().createIndex(k, 0, self.model().getRoot().child(k))
+                    if parentModelIndex.isValid():  
+                        childModelIndex = parentModelIndex.child(i, 0)
+                        if childModelIndex.isValid():
+                            self.selectionModel().select(childModelIndex, QtGui.QItemSelectionModel.Select)
+            k+=1
 
     
     def __restoreState(self):
+        selectedNodeTypesBeforeModelUpdate = self.__selectedNodeTypes
+        selectedNodeNamesBeforeModelUpdate = map(lambda x: x['name'].value(), self.__selectedNodes)
         self.__restoreExpanded()
-        self.__restoreSelected()
+        self.__restoreSelectedNodeTypes(selectedNodeTypesBeforeModelUpdate)
+        self.__restoreSelectedNodes(selectedNodeNamesBeforeModelUpdate)
 
         
     def updateModel(self):
@@ -277,7 +298,6 @@ class NodeTreeView(QtGui.QTreeView):
         self.setAlternatingRowColors(True)
         self.setPalette(palette)
         self.setSelectionMode(QtGui.QAbstractItemView.MultiSelection) 
-        
         self.expanded.connect(self.setExpandedItems)
         self.collapsed.connect(self.setExpandedItems)
         
