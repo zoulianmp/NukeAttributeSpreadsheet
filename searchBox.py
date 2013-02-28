@@ -5,6 +5,7 @@ except ImportError:
     
 import constants, utils, icons
 
+
 class SearchBox(QtGui.QLineEdit):
     # implementation from http://git.forwardbias.in/?p=lineeditclearbutton.git;a=blob;f=lineedit.cpp;hb=HEAD
     def __init__(self, parent = None, defaultText = None):
@@ -97,7 +98,7 @@ class SearchBox(QtGui.QLineEdit):
         self.searchLabel.setStyleSheet("QLabel { background-color: rgba(0, 0, 0, 0); }")        
 
     def initClearButton(self):
-        icon = icons.Icon(name = 'cross.png')
+        icon = icons.Icon(name = 'cross-circle-frame.png')
         self.clearButton = QtGui.QToolButton(self)                     
         self.clearButton.setIcon(icon)
         self.clearButton.setIconSize( QtCore.QSize(18, 18) )

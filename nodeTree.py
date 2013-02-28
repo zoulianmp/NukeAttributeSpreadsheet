@@ -201,6 +201,7 @@ class NodeTreeView(QtGui.QTreeView):
         QtGui.QTreeView.__init__(self, parent)
         
         self.__selectedNodes = []
+        self.__selectedNodeTypes = []
         self.__expandedItems = []
 
         self.__initNodeTreeView()
@@ -215,6 +216,13 @@ class NodeTreeView(QtGui.QTreeView):
             if self.isExpanded(index_):
                 expandedItems.append(index_.internalPointer())
         self.__expandedItems = expandedItems
+        
+    def getSelectedNodeTypes(self):
+        selectedNodeTypes = []
+        for index_ in self.selectedIndexes():
+            if index_.internalPointer().representsNodeType():
+                selectedNodeTypes.append(index_.internalPointer().data(0))
+        return sorted(list(set(selectedNodeTypes)))   
     
     def getSelectedNodeNames(self):
         selectedNodes = []
@@ -226,10 +234,9 @@ class NodeTreeView(QtGui.QTreeView):
     def getSelectedNodes(self):
         return nodes.getNodesFromNodeNames(self.getSelectedNodeNames())   
         
-        
     def selectionChanged(self, selected, deselected):
         self.__selectedNodes = self.getSelectedNodes()
-        # print 'selected', self.__selectedNodes
+        self.__selectedNodeTypes = self.getSelectedNodeTypes()
         return QtGui.QTreeView.selectionChanged(self, selected, deselected)
     
     def __restoreExpanded(self):
@@ -240,7 +247,13 @@ class NodeTreeView(QtGui.QTreeView):
                 self.setExpanded(modelIndex, True) 
                 
     def __restoreSelected(self):
-        pass       
+        selectedNodeTypes = self.__selectedNodeTypes
+        self.clearSelection()
+        for i in range(len(self.model().getRoot().childItems())):
+            modelIndex = self.model().createIndex(i, 0, self.model().getRoot().child(i))
+            if str(modelIndex.internalPointer().data(0)) in selectedNodeTypes:
+                self.selectionModel().select(modelIndex, QtGui.QItemSelectionModel.Select)
+
     
     def __restoreState(self):
         self.__restoreExpanded()

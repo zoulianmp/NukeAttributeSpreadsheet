@@ -29,7 +29,7 @@ except ImportError:
 class Icon(QtGui.QIcon):
     def __init__(self, name = None):
         QtGui.QIcon.__init__(self)
-        fullIconPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), name)
+        fullIconPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'img', name)
         self.addFile(fullIconPath)
     
 class IconBlank(QtGui.QIcon):

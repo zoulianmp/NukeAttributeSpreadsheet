@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 ''' The main widget'''
+import icons
 
 
 __author__ = 'Manuel Macha'
@@ -70,6 +71,7 @@ class MainWidget(QtGui.QWidget):
         self.setLayout(QtGui.QVBoxLayout())                                 # Create the main layout
         
         self.__btnReload = QtGui.QPushButton('Reload', self)                # Create the 'Reload' button
+        self.__btnReload.setIcon(icons.Icon(name = 'arrow-circle-double-135.png'))
         self.layout().addWidget(self.__btnReload)                           # Add button to layout
         
         self.__vSplitter = QtGui.QSplitter(self)                            # Create the main splitter
