@@ -236,12 +236,23 @@ class NodeTreeView(QtGui.QTreeView):
             if index_.column() == 0 and index_.internalPointer().representsNodeType():
                 modelIndexesRepresentingNodeTypes.append(index_)
         return modelIndexesRepresentingNodeTypes
+    
+    def __modifyChildNodeSelectionForNodeTypeModelIndexes(self, modelIndexes, select = True, deselect = False):
+        for modelIndex in modelIndexes:
+            i = 0
+            while modelIndex.child(i, 0).isValid():
+                if select == True:
+                    self.selectionModel().select(modelIndex.child(i, 0), QtGui.QItemSelectionModel.Select)
+                elif deselect == True:
+                    for k in range(3):
+                        self.selectionModel().select(modelIndex.child(i, k), QtGui.QItemSelectionModel.Deselect)
+                i+=1 
         
     def selectionChanged(self, selected, deselected):
-        #print 'selectedNodeTypes', self.__getModelIndexesFromItemSelectionIfIndexRepresentsNodeType(selected)
-        #print 'deselectedNodeTypes', self.__getModelIndexesFromItemSelectionIfIndexRepresentsNodeType(deselected)
-                    
-                
+        selectedModelIndexes = self.__getModelIndexesFromItemSelectionIfIndexRepresentsNodeType(selected)
+        deselectedModelIndexes = self.__getModelIndexesFromItemSelectionIfIndexRepresentsNodeType(deselected)
+        self.__modifyChildNodeSelectionForNodeTypeModelIndexes(selectedModelIndexes)
+        self.__modifyChildNodeSelectionForNodeTypeModelIndexes(deselectedModelIndexes, select = False, deselect = True)
         self.__selectedNodes = self.getSelectedNodes()
         self.__selectedNodeTypes = self.getSelectedNodeTypes()
         return QtGui.QTreeView.selectionChanged(self, selected, deselected)
