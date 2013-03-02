@@ -2,8 +2,6 @@
 
 '''
 This widget displays a selection of nodes in a treeView sorted by node-type.
-
-Implemented from http://qt-project.org/doc/qt-4.8/itemviews-simpletreemodel.html
 '''
 
 __author__ = 'Manuel Macha'
@@ -22,27 +20,43 @@ except ImportError:
     
 import nodes, icons, constants
 
-class NodeTreeFilter(object): # Using singleton pattern
-    def __init__(self):
+class NodeTreeFilter(object):
+    '''
+    Stores a string that is being used in order to filter items from the TreeViewModel.
+    This class is using some sort of singleton pattern so it can only be initialized once.
+    Every other call to this class will return the same instance.
+    '''
+    def __init__(self): 
         globals()[self.__class__.__name__] = self
         
-        self.__filter = None
+        self.__filter = None                                # Stores the string that is being used to filter the NodeTreeModel
         
     def __call__(self):
-        return self
+        return self                                         # Overridden method in order to enforce singleton-pattern
     
     def setFilter(self, filter_):
+        ''' Set the filter string '''
         self.__filter = filter_
     
     def getFilter(self):
+        ''' Get the filter string '''
         return self.__filter
     
     def isStringInFilter(self, string):
+        '''
+        Determines if a given string is identical or a substring of the filter-string
+        The comparison is not case-sensitive!
+        Return value: True or False (Bool) 
+        '''
         if self.getFilter() is None:
             return True
         return self.getFilter().lower() in string.lower()
 
 class TreeItem(object):
+    '''
+    
+    TreeItem and TreeModel implemented from http://qt-project.org/doc/qt-4.8/itemviews-simpletreemodel.html
+    '''
     def __init__(self, data, parent = None):
         self.__childItems = []
         self.__itemData = data
