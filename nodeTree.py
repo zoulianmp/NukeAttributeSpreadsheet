@@ -104,7 +104,7 @@ class NodeTreeModel(QtCore.QAbstractItemModel):
         QtCore.QAbstractItemModel.__init__(self, parent)
 
         self.__nodeDict = nodes.getNodeDict()
-        self.__rootData = ['Nodes', '#', 'x']
+        self.__rootData = ['Nodes', '#', '']
         self.__rootItem = TreeItem(self.__rootData)
         self.__rootItem.setRepresentsRoot(True)
         self.__filter = NodeTreeFilter()
@@ -128,12 +128,12 @@ class NodeTreeModel(QtCore.QAbstractItemModel):
         numberOfNodesByType = nodes.getNumberOfNodesByType()
         for nodeType in nodes.getAllNodeTypes():
             if self.__nodeTypeMatchesFilter(nodeType):  
-                nodeTypeItem = TreeItem([nodeType, numberOfNodesByType[nodeType], 'x'], parent = self.__rootItem)
+                nodeTypeItem = TreeItem([nodeType, numberOfNodesByType[nodeType], ''], parent = self.__rootItem)
                 nodeTypeItem.setRepresentsNodeType(True)
                 self.__rootItem.appendChild(nodeTypeItem)
                 for node in self.__nodeDict[nodeType]:
                     if self.__filter.isStringInFilter(node['name'].value()):
-                        nodeItem = TreeItem([node['name'].value(), '', 'x'], parent = nodeTypeItem)
+                        nodeItem = TreeItem([node['name'].value(), '', ''], parent = nodeTypeItem)
                         nodeItem.setRepresentsNode(True)
                         nodeTypeItem.appendChild(nodeItem)
                 
@@ -189,10 +189,20 @@ class NodeTreeModel(QtCore.QAbstractItemModel):
         item = index.internalPointer()
         if role == QtCore.Qt.DisplayRole:
             return item.data(index.column())
-        elif role == QtCore.Qt.DecorationRole and index.column() == 0:
-            if item.parent() == self.__rootItem:
-                return icons.NodeIconLib().getIconForNodeType(item.data(0))
-        elif role == QtCore.Qt.FontRole and item.parent() == self.__rootItem:
+        elif role == QtCore.Qt.DecorationRole:
+            if item.representsNodeType():
+                if index.column() == 0:
+                    return icons.NodeIconLib().getIconForNodeType(item.data(0))
+                elif index.column() == 2:
+                    return QtGui.QIcon(icons.Icon('node-select-all.png'))
+            elif item.representsNode():
+                if index.column() == 2:
+                    return QtGui.QIcon(icons.Icon('node-select-child.png'))
+                
+
+                    #return icons.Icon('node-select-all.png')
+            
+        elif role == QtCore.Qt.FontRole and item.parent() == self.__rootItem and index.column() == 0:
             font = QtGui.QFont()
             font.setBold(True)
             return font
@@ -207,7 +217,11 @@ class NodeTreeModel(QtCore.QAbstractItemModel):
             if role == QtCore.Qt.DisplayRole:
                 return self.__rootItem.data(section)
             elif role == QtCore.Qt.DecorationRole:
-                return icons.Icon(name = 'cross.png')
+                if section == 0:
+                    return icons.NodeIconLib().getNukeIcon()
+                elif section ==2:
+                    return QtGui.QIcon(icons.Icon('node.png'))
+
         
         
 class NodeTreeView(QtGui.QTreeView):
@@ -217,6 +231,7 @@ class NodeTreeView(QtGui.QTreeView):
         self.__selectedNodes = []
         self.__selectedNodeTypes = []
         self.__expandedItems = []
+        self.__preventRecursion = True
 
         self.__initNodeTreeView()
     
@@ -242,7 +257,7 @@ class NodeTreeView(QtGui.QTreeView):
         return sorted(list(set(selectedNodes)))   
     
     def getSelectedNodes(self):
-        return nodes.getNodesFromNodeNames(self.getSelectedNodeNames())   
+        return nodes.getNodesFromNodeNames(self.getSelectedNodeNames())       
     
     def __getModelIndexesFromItemSelectionIfIndexRepresentsNodeType(self, itemSelection):
         modelIndexesRepresentingNodeTypes = []
@@ -252,23 +267,24 @@ class NodeTreeView(QtGui.QTreeView):
         return modelIndexesRepresentingNodeTypes
     
     def __modifyChildNodeSelectionForNodeTypeModelIndexes(self, modelIndexes, select = True, deselect = False):
-        for modelIndex in modelIndexes:
-            i = 0
-            while modelIndex.child(i, 0).isValid():
-                if select == True:
-                    self.selectionModel().select(modelIndex.child(i, 0), QtGui.QItemSelectionModel.Select)
-                elif deselect == True:
-                    for k in range(3):
-                        self.selectionModel().select(modelIndex.child(i, k), QtGui.QItemSelectionModel.Deselect)
-                i+=1 
+        ''' If a nodeType is being selected or deselected, select/deselect all nodes under it. ''' 
+        for modelIndex in modelIndexes:                                                                             # Loop through the provided modelIndexes. These always represent nodeTyes
+            i = 0                                                                                                   # Counter to identify the position of nodes in the list of the nodeType's children
+            while modelIndex.child(i, 0).isValid():                                                                 # We don't know how many children the nodeType has so we just cycle through them until an invalid modelIndex is being returned
+                if select == True:                                                                                  # Check if the method is supposed to select items in the treeView
+                    self.selectionModel().select(modelIndex.child(i, 0), QtGui.QItemSelectionModel.Select)          # Modify the selectionModel
+                elif deselect == True:                                                                              # Check if the method is supposed to deselect items in the treeView
+                    for k in range(modelIndex.internalPointer().columnCount()):                                     # When deselecting, we need to also make sure that all columns for a certain item are being deselected, not only the first one              
+                        self.selectionModel().select(modelIndex.child(i, k), QtGui.QItemSelectionModel.Deselect)    # Modify the selectionModel
+                i+=1                                                                                                # Increase the counter                                                                                                             
         
     def selectionChanged(self, selected, deselected):
+        self.__selectedNodes = self.getSelectedNodes()
+        self.__selectedNodeTypes = self.getSelectedNodeTypes()        
         selectedModelIndexes = self.__getModelIndexesFromItemSelectionIfIndexRepresentsNodeType(selected)
         deselectedModelIndexes = self.__getModelIndexesFromItemSelectionIfIndexRepresentsNodeType(deselected)
         self.__modifyChildNodeSelectionForNodeTypeModelIndexes(selectedModelIndexes)
         self.__modifyChildNodeSelectionForNodeTypeModelIndexes(deselectedModelIndexes, select = False, deselect = True)
-        self.__selectedNodes = self.getSelectedNodes()
-        self.__selectedNodeTypes = self.getSelectedNodeTypes()
         return QtGui.QTreeView.selectionChanged(self, selected, deselected)
     
     def __restoreExpanded(self):

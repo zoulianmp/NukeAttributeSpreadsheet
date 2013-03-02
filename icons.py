@@ -30,7 +30,10 @@ class Icon(QtGui.QIcon):
     def __init__(self, name = None):
         QtGui.QIcon.__init__(self)
         fullIconPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'img', name)
-        self.addFile(fullIconPath)
+        if os.path.isfile(fullIconPath):
+            self.addFile(fullIconPath)
+        else:
+            raise Exception('Invalid path: %s' % fullIconPath)
     
 class IconBlank(QtGui.QIcon):
     def __init__(self):
@@ -72,9 +75,16 @@ class NodeIconLib(object): # Using singleton pattern
                             self.__icons[subSubItem.name()] = self.__getIconForNodeType(subItem.icon())
                             
     def __getUnresolvedIcons(self):
-        self.__icons['Expression'] = self.__getIconForNodeType('Expression.png')   
+        self.__icons['NukeApp32'] = self.__getIconForNodeType('NukeApp32.png')
+        self.__icons['BackdropNode'] = self.__getIconForNodeType('Backdrop.png')
+        self.__icons['Expression'] = self.__getIconForNodeType('Expression.png')
+        self.__icons['Merge2'] = self.__getIconForNodeType('Merge.png')      
 
     def getIconForNodeType(self, nodeType):
         return self.__icons.get(nodeType, IconBlank())
+    
+    def getNukeIcon(self):
+        return self.getIconForNodeType('NukeApp32')
+        
 
     
